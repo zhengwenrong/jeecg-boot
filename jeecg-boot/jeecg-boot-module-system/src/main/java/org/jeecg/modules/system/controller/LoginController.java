@@ -19,12 +19,10 @@ import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.*;
 import org.jeecg.common.util.encryption.EncryptedString;
 import org.jeecg.modules.system.entity.SysDepart;
+import org.jeecg.modules.system.entity.SysPermission;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysLoginModel;
-import org.jeecg.modules.system.service.ISysDepartService;
-import org.jeecg.modules.system.service.ISysDictService;
-import org.jeecg.modules.system.service.ISysLogService;
-import org.jeecg.modules.system.service.ISysUserService;
+import org.jeecg.modules.system.service.*;
 import org.jeecg.modules.system.util.RandImageUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +56,10 @@ public class LoginController {
     private ISysDictService sysDictService;
 	@Resource
 	private BaseCommonService baseCommonService;
+
+	@Autowired
+	private ISysPermissionService sysPermissionService;
+
 
 	private static final String BASE_CHECK_CODES = "qwertyuiplkjhgfdsazxcvbnmQWERTYUPLKJHGFDSAZXCVBNM1234567890";
 
@@ -417,7 +419,7 @@ public class LoginController {
 			String code = RandomUtil.randomString(BASE_CHECK_CODES,4);
 			String lowerCaseCode = code.toLowerCase();
 			String realKey = MD5Util.MD5Encode(lowerCaseCode+key, "utf-8");
-			redisUtil.set(realKey, lowerCaseCode, 60);
+			redisUtil.set(realKey, lowerCaseCode, 3600);
 			String base64 = RandImageUtil.generate(code);
 			res.setSuccess(true);
 			res.setResult(base64);
@@ -506,5 +508,25 @@ public class LoginController {
 		}
 		return Result.ok();
 	}
+
+	/**
+	 * 获取首页地址
+	 * @param
+	 * @return
+	 */
+	@RequestMapping(value = "/getIndexRouteUrl", method = RequestMethod.GET)
+	public Result<?> getIndexRouteUrl(){
+
+		LambdaQueryWrapper<SysPermission> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(SysPermission::getName,"首页");
+		SysPermission one = sysPermissionService.getOne(queryWrapper);
+
+		if(one == null){
+			return Result.error("获取首页地址出错");
+		}
+
+		return Result.OK(one.getUrl());
+	}
+
 
 }
