@@ -419,7 +419,7 @@ public class LoginController {
 			String code = RandomUtil.randomString(BASE_CHECK_CODES,4);
 			String lowerCaseCode = code.toLowerCase();
 			String realKey = MD5Util.MD5Encode(lowerCaseCode+key, "utf-8");
-			redisUtil.set(realKey, lowerCaseCode, 3600);
+			redisUtil.set(realKey, lowerCaseCode, 60);
 			String base64 = RandImageUtil.generate(code);
 			res.setSuccess(true);
 			res.setResult(base64);
