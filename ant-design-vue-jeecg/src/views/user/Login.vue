@@ -138,6 +138,8 @@
           key:"",
           iv:"",
         },
+        //首页路由地址
+        indexRouteUrl:""
       }
     },
     created() {
@@ -145,6 +147,7 @@
       this.model.rememberMe = true
       Vue.ls.remove(ACCESS_TOKEN)
       this.getRouterData();
+      this.getIndexRouteUrl()
       this.handleChangeCheckCode();
     },
     methods:{
@@ -288,7 +291,10 @@
       },
       //登录成功
       loginSuccess () {
-        this.$router.push({ path: "/dashboard/analysis" }).catch(()=>{
+
+        //todo: 这里可以自定义首页
+
+        this.$router.push({ path: this.indexRouteUrl }).catch(()=>{
           console.log('登录跳转首页出错,这个错误从哪里来的')
         })
         this.$notification.success({
@@ -368,6 +374,22 @@
         }else{
           this.encryptedString = encryptedString;
         }
+      },
+      //获取首页的路由
+      getIndexRouteUrl(){
+
+        getAction(`/sys/getIndexRouteUrl`).then(res=>{
+
+          console.log(res)
+          if(res.success){
+            this.indexRouteUrl = res.result
+          }else{
+            this.$message.error(res.message)
+          }
+        }).catch((err)=>{
+          console.log(err)
+        })
+
       }
 
     }
